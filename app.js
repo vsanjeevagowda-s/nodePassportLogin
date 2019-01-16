@@ -1,6 +1,8 @@
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const mongoose = require('mongoose');
+const flash = require('connect-flash');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,9 +16,27 @@ app.set('view engine', 'ejs');
 // Body parser
 app.use(express.urlencoded({extended: false}));
 
+// Express session
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}))
+
+// connect flash
+app.use(flash());
+
+
+// Global variables
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  next();
+});
+
 // Mongodb connection
 mongoose.connect(db, {useNewUrlParser: true})
-.then(resp => console.log('mongo db connected...', resp))
+.then(resp => console.log('mongo db connected...'))
 .catch(err => console.log('error=>', err));
 
 
